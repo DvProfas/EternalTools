@@ -1,0 +1,172 @@
+name: Montar repo e publicar Release
+
+# Lê os .zip que estão na raiz do repositório (zip do repo e zip da extensão),
+# monta os arquivos no repo, confere versão e hashes, gera o build e publica a Release.
+# Como usar:
+#   - suba os zips na raiz (roda sozinho), ou
+#   - aba Actions > este workflow > Run workflow (funciona pelo celular).
+on:
+  push:
+    branches: ["main"]
+    paths: ["*.zip"]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da versão (ex.: v4.1.0). Vazio = usa a versão do manifest.json"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Montar os arquivos a partir dos zips
+        run: |
+          shopt -s nullglob
+          ZIPS=(*.zip)
+          if [ "${#ZIPS[@]}" -eq 0 ]; then
+            if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF_TYPE" = "branch" ]; then
+              echo "Nenhum zip na raiz, nada a fazer."
+              echo "SKIP=1" >> "$GITHUB_ENV"
+            else
+              echo "Nenhum zip na raiz, usando os arquivos que já estão no repositório."
+            fi
+            exit 0
+          fi
+          python3 - << 'PY'
+          import os, pathlib, shutil, subprocess, sys
+
+          ws = pathlib.Path(os.environ["GITHUB_WORKSPACE"])
+          tmp = pathlib.Path(os.environ["RUNNER_TEMP"]) / "montar"
+          shutil.rmtree(tmp, ignore_errors=True)
+          stage = tmp / "stage"
+          stage.mkdir(parents=True)
+
+          # zip do repo primeiro; o zip da extensão vem depois e prevalece
+          zips = sorted(ws.glob("*.zip"), key=lambda p: (0 if "repo" in p.name.lower() else 1, p.name.lower()))
+
+          def ignorar(_dir, nomes):
+              return [n for n in nomes if n in (".git", ".github", "__MACOSX", ".DS_Store") or n.lower().endswith(".zip")]
+
+          for z in zips:
+              dest = tmp / "x" / z.stem
+              dest.mkdir(parents=True)
+              subprocess.run(["unzip", "-q", "-o", str(z), "-d", str(dest)], check=True)
+              base = dest
+              while True:
+                  itens = [p for p in base.iterdir() if p.name != "__MACOSX"]
+                  if len(itens) == 1 and itens[0].is_dir():
+                      base = itens[0]
+                  else:
+                      break
+              print(f"{z.name}: usando o conteúdo de {base.relative_to(dest) or '.'}")
+              shutil.copytree(base, stage, dirs_exist_ok=True, ignore=ignorar)
+
+          if not (stage / "manifest.json").is_file():
+              print("::error::manifest.json não encontrado nos zips. Envie o zip da extensão.")
+              sys.exit(1)
+
+          # pastas só da extensão são substituídas por inteiro (evita sobrar arquivo antigo)
+          for d in ("js", "css", "icons"):
+              if (stage / d).is_dir():
+                  shutil.rmtree(ws / d, ignore_errors=True)
+          shutil.copytree(stage, ws, dirs_exist_ok=True)
+          for z in zips:
+              z.unlink()
+          print("Arquivos montados na raiz do repositório.")
+          PY
+
+      - name: Validar versão e hashes SHA-256
+        if: env.SKIP != '1'
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          python3 - << 'PY'
+          import hashlib, json, os, pathlib, re, sys
+
+          def erro(msg):
+              print(f"::error::{msg}")
+              sys.exit(1)
+
+          root = pathlib.Path(os.environ["GITHUB_WORKSPACE"])
+          if not (root / "manifest.json").is_file():
+              erro("manifest.json não encontrado na raiz do repositório. Suba o zip da extensão.")
+          version = json.loads((root / "manifest.json").read_text(encoding="utf-8"))["version"]
+
+          tag = os.environ.get("INPUT_TAG", "").strip()
+          if not tag and os.environ.get("GITHUB_REF_TYPE") == "tag":
+              tag = os.environ["GITHUB_REF_NAME"]
+          if not tag:
+              tag = "v" + version
+          if tag.lstrip("v") != version:
+              erro(f"A versão do manifest.json ({version}) é diferente da tag ({tag}).")
+
+          bg = (root / "background.js").read_text(encoding="utf-8")
+          m = re.search(r"EXPECTED_SHA256 = \{(.*?)\};", bg, re.S)
+          if not m:
+              erro("EXPECTED_SHA256 não encontrado no background.js.")
+          esperado = dict(re.findall(r'"([^"]+)":\s*"([0-9a-f]{64})"', m.group(1)))
+
+          arquivos = ["app.html"] + sorted(f"js/{p.name}" for p in (root / "js").glob("*.js"))
+          falhas = 0
+          for rel in sorted(set(esperado) | set(arquivos)):
+              f = root / rel
+              atual = hashlib.sha256(f.read_bytes()).hexdigest() if f.is_file() else None
+              if atual != esperado.get(rel):
+                  print(f"::error::Hash divergente ou arquivo fora da lista: {rel}")
+                  falhas += 1
+          if falhas:
+              erro("Hashes não conferem. Rode ./gerar-hashes.sh e cole o resultado em EXPECTED_SHA256, no background.js.")
+
+          print(f"Versão {version} | tag {tag} | {len(esperado)} hashes OK")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write(f"TAG={tag}\nVERSION={version}\n")
+          PY
+
+      - name: Gerar o build da extensão
+        if: env.SKIP != '1'
+        run: |
+          mkdir -p "$RUNNER_TEMP/dist"
+          BUILD_ZIP="$RUNNER_TEMP/dist/EternalTools-$TAG.zip"
+          zip -rX "$BUILD_ZIP" . \
+            -x ".git/*" ".github/*" "*.zip" "__MACOSX/*" "*.DS_Store" \
+               "README.md" "RELEASE_NOTES.md" "TUTORIAL.md" "LICENSE" \
+               "assets/banner.svg" "assets/screenshots/*" \
+               "gerar-hashes.sh" ".gitattributes" ".gitignore"
+          echo "BUILD_ZIP=$BUILD_ZIP" >> "$GITHUB_ENV"
+          unzip -l "$BUILD_ZIP"
+
+      - name: Salvar os arquivos montados no repositório
+        if: env.SKIP != '1'
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nada para salvar."
+          else
+            git commit -q -m "Montar repositório a partir dos zips (v$VERSION)"
+            git push origin "HEAD:refs/heads/$DEFAULT_BRANCH"
+          fi
+
+      - name: Publicar a Release
+        if: env.SKIP != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" "$BUILD_ZIP" --clobber
+          else
+            if [ -f RELEASE_NOTES.md ]; then NOTES=(--notes-file RELEASE_NOTES.md); else NOTES=(--generate-notes); fi
+            gh release create "$TAG" "$BUILD_ZIP" --target "$(git rev-parse HEAD)" --title "Eternal TOOLS $TAG" "${NOTES[@]}"
+          fi
