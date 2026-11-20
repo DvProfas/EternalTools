@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eternal TOOLS v4</title>
+  <link rel="icon" type="image/png" href="icons/icon48.png" />
+  <script src="js/boot.js"></script>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+
+  <!-- BACKGROUND: wallpaper + sombra + bolinhas + grão -->
+  <div class="bg" aria-hidden="true">
+    <div class="bg-wall"></div>
+    <div class="bg-shade"></div>
+    <canvas id="bg-particles"></canvas>
+  </div>
+
+  <!-- SPLASH -->
+  <div id="splash" class="splash">
+    <div class="splash-bg"></div>
+    
+    <div class="splash-inner">
+      <div class="splash-mark">
+        <img src="icons/icon128.png" alt="Eternal TOOLS" onerror="this.style.display='none'" />
+      </div>
+      <div class="splash-kanji">永遠</div>
+      <div class="splash-logo">Eternal TOOLS <em>v4</em></div>
+      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+      <div class="splash-hint">
+        <span class="splash-dot"></span> Inicializando ambiente
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="app" aria-hidden="true">
+    <header class="header">
+      <div class="header-inner">
+        <div class="brand">
+          <button class="brand-icon-btn" id="btn-settings" type="button" title="Configurações" aria-label="Abrir configurações" aria-haspopup="dialog">
+            <img src="icons/icon48.png" alt="" class="brand-icon" onerror="this.style.display='none'" />
+            <span class="brand-gear" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+          </button>
+          <a class="brand-text" href="#" data-tab="cookies">ETERNAL<small>永遠</small></a>
+        </div>
+
+        <nav class="nav" role="tablist">
+          <span class="nav-indicator" aria-hidden="true"></span>
+          <button class="nav-item active" data-tab="cookies" title="Cookies">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="8.5" cy="10" r="0.5" fill="currentColor"/><circle cx="12" cy="14.5" r="0.5" fill="currentColor"/><circle cx="15.5" cy="10.5" r="0.5" fill="currentColor"/></svg>
+            <span>Cookies</span>
+          </button>
+          <button class="nav-item" data-tab="auth" title="Auth 2FA">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            <span>Auth 2FA</span>
+          </button>
+          <button class="nav-item" data-tab="friends" title="Friends">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Friends</span>
+          </button>
+          <button class="nav-item" data-tab="vault" title="Cofre">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Cofre</span>
+          </button>
+        </nav>
+
+        <div class="account-chip" id="account-chip" data-empty="true">
+          <div class="account-dot"></div>
+          <div class="account-chip-text">
+            <span class="account-chip-label">Desconectado</span>
+            <span class="account-chip-name" id="chip-name">—</span>
+          </div>
+          <img class="account-chip-avatar" id="chip-avatar" alt="" />
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+        <!-- EDITAR CONTA (tags / nota) -->
+  <div id="edit-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-title">Organizar conta</div>
+      <div class="modal-body" id="edit-name" style="margin-bottom:18px"></div>
+      <label class="field-label" for="edit-tags">Tags (separe por vírgula)</label>
+      <input id="edit-tags" type="text" maxlength="120" placeholder="ex: main, trade, alt" />
+      <label class="field-label" for="edit-note" style="margin-top:16px">Nota</label>
+      <textarea id="edit-note" maxlength="120" style="min-height:76px" placeholder="Lembrete sobre essa conta…"></textarea>
+      <div class="modal-actions" style="margin-top:22px">
+        <button id="edit-cancel" class="btn btn-ghost">Cancelar</button>
+        <button id="edit-save" class="btn btn-primary">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESSO (remoção de amigos) -->
+  <div id="progress-overlay" class="modal-overlay hidden">
+    <div class="modal prog-modal">
+      <div class="modal-title" id="prog-title">Removendo amigos</div>
+      <div class="prog-count" id="prog-count">0/0</div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-name" id="prog-name">—</div>
+      <div class="prog-stats"><span>Removidos <b id="prog-ok">0</b></span><span>Falhas <b id="prog-fail">0</b></span></div>
+      <div class="modal-actions"><button id="prog-cancel" class="btn btn-ghost" data-done="false">Cancelar</button></div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+      <!-- COOKIES -->
+      <section class="panel active" id="tab-cookies">
+        <div class="panel-head">
+          <h1 class="panel-title">Conectar Conta</h1>
+          <p class="panel-sub">Autentique-se com o cookie <code>.ROBLOSECURITY</code>.</p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h2>Credencial</h2><span class="pill">Etapa 1</span></div>
+            <label class="field-label" for="cookie-input">Cookie .ROBLOSECURITY</label>
+            <textarea id="cookie-input" placeholder="Cole o cookie aqui…" spellcheck="false"></textarea>
+            <div class="row">
+              <button id="btn-connect" class="btn btn-primary" data-label="Conectar">
+                <span class="btn-label">Conectar</span><span class="spinner hidden"></span>
+              </button>
+              <button id="btn-disconnect" class="btn btn-ghost">Desconectar</button>
+            </div>
+            <div id="cookie-banner" class="banner hidden"></div>
+          </div>
+          <div class="card account-card" id="account-card">
+            <div class="card-head"><h2>Conta Ativa</h2><span class="pill pill-live" id="acc-status">Desconectado</span></div>
+            <div class="account-body">
+              <div class="avatar-holder"><img id="acc-avatar" alt="" /><div class="avatar-placeholder">?</div></div>
+              <div class="account-meta">
+                <div class="account-name" id="acc-name">Nenhuma conta conectada</div>
+                <div class="account-id" id="acc-id">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AUTH -->
+      <section class="panel" id="tab-auth">
+        <div class="panel-head">
+          <h1 class="panel-title">Autenticação 2FA</h1>
+          <p class="panel-sub">Gerencie secrets TOTP (Base32).</p>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Adicionar Secret</h2></div>
+          <div class="form-grid">
+            <div><label class="field-label" for="secret-label">Rótulo</label><input id="secret-label" type="text" placeholder="Ex: Conta alt" /></div>
+            <div><label class="field-label" for="secret-input">Secret Base32</label><input id="secret-input" type="text" placeholder="JBSWY3DPEHPK3PXP" spellcheck="false" /></div>
+            <div class="form-action"><button id="btn-add-secret" class="btn btn-primary">Adicionar</button></div>
+          </div>
+          <div id="auth-banner" class="banner hidden"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Códigos Ativos</h2><span class="pill" id="totp-count">0</span></div>
+          <div id="totp-list" class="totp-grid"></div>
+        </div>
+      </section>
+
+      <!-- FRIENDS -->
+      <section class="panel" id="tab-friends">
+        <div class="panel-head">
+          <h1 class="panel-title">Amizades</h1>
+          <p class="panel-sub">Remova amigos em massa.</p>
+          <div class="panel-actions">
+            <button id="btn-load-friends" class="btn btn-primary" data-label="Carregar Amizades">
+              <span class="btn-label">Carregar Amizades</span><span class="spinner hidden"></span>
+            </button>
+          </div>
+        </div>
+        <div id="friends-banner" class="banner hidden"></div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-head-left"><h2>Lista</h2><span class="pill" id="friends-count">0</span><span class="pill pill-accent" id="friends-selected-count">0 sel.</span></div>
+            <div class="row gap-sm">
+              <button id="btn-select-all" class="btn btn-ghost btn-sm">Selecionar Todos</button>
+              <button id="btn-remove-friends" class="btn btn-danger btn-sm">Remover</button>
+            </div>
+          </div>
+          <div id="friends-list" class="friends-list"></div>
+        </div>
+      </section>
+
+      <!-- VAULT -->
+      <section class="panel" id="tab-vault">
+        <div class="panel-head">
+          <h1 class="panel-title">Cofre de Contas</h1>
+          <p class="panel-sub">Troque de conta com um clique em <b>Relogar</b>.</p>
+          <div class="vault-toolbar">
+            <div class="search-wrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="vault-search" type="text" placeholder="Buscar nome, tag ou nota…" />
+            </div>
+            <select id="vault-sort" class="select" aria-label="Ordenar">
+              <option value="recent">Último acesso</option>
+              <option value="name">Nome (A–Z)</option>
+              <option value="robux">Mais Robux</option>
+            </select>
+            <button id="vault-verify" class="btn btn-ghost btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <span>Verificar todas</span>
+            </button>
+          </div>
+          <div id="vault-filters" class="vault-filters hidden"></div>
+        </div>
+        <div id="vault-grid" class="vault-grid"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      Criado por <a href="https://www.youtube.com/@eternalBMZ" target="_blank" rel="noopener noreferrer">eternalBMZ</a> · Eternal TOOLS v4
+    </footer>
+  </div>
+
+  <!-- MODAL -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      </div>
+      <div class="modal-title" id="modal-title">Confirmar</div>
+      <div class="modal-body" id="modal-body">Tem certeza?</div>
+      <div class="modal-actions">
+        <button id="modal-cancel" class="btn btn-ghost">Cancelar</button>
+        <button id="modal-confirm" class="btn btn-primary">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- CONFIGURAÇÕES (abre só pelo ícone da extensão no menu) -->
+  <div id="settings-overlay" class="settings-overlay" aria-hidden="true"></div>
+  <aside id="settings-panel" class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" aria-hidden="true">
+    <div class="settings-head">
+      <img src="icons/icon48.png" alt="" class="settings-logo" onerror="this.style.display='none'" />
+      <div class="settings-head-text">
+        <h2 id="settings-title">Configurações</h2>
+        <span>Personalize sua Eternal TOOLS</span>
+      </div>
+      <button id="settings-close" class="settings-close" type="button" aria-label="Fechar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="settings-body">
+      <section class="set-group">
+        <h3>Tema</h3>
+        <div id="theme-grid" class="theme-grid"></div>
+      </section>
+
+      <section class="set-group">
+        <h3>Roblox</h3>
+        <label class="set-row">
+          <span class="set-text"><b>Entrar no Roblox automaticamente</b><small>Abre o Roblox logo após conectar ou relogar em uma conta.</small></span>
+          <input type="checkbox" class="switch" id="set-autoOpen" />
+        </label>
+        <div class="set-sub" id="set-autoOpen-sub">
+          <label class="set-row">
+            <span class="set-text"><b>Reutilizar aba aberta</b><small>Usa uma aba do Roblox já aberta em vez de abrir outra.</small></span>
+            <input type="checkbox" class="switch" id="set-reuseTab" />
+          </label>
+          <label class="set-row set-row-col">
+            <span class="set-text"><b>Abrir em</b><small>Página que será aberta após o login.</small></span>
+            <select id="set-openDest" class="select">
+              <option value="account">Configurações da conta (padrão)</option>
+              <option value="home">Início</option>
+              <option value="inventory">Inventário</option>
+              <option value="avatar">Avatar</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>Aparência</h3>
+        <label class="set-row">
+          <span class="set-text"><b>Partículas de fundo</b><small>Bolinhas animadas. Desative para economizar bateria.</small></span>
+          <input type="checkbox" class="switch" id="set-particles" />
+        </label>
+        <label class="set-row">
+          <span class="set-text"><b>Pular animação de abertura</b><small>Entra direto no painel, sem a tela de carregamento.</small></span>
+          <input type="checkbox" class="switch" id="set-skipSplash" />
+        </label>
+        <div class="set-row set-row-col">
+          <span class="set-text"><b>Escurecer o fundo</b><small>Controla o quanto o wallpaper fica escuro.</small></span>
+          <div class="range-wrap"><input type="range" id="set-dim" min="20" max="95" step="1" /><output id="set-dim-out">62%</output></div>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>Privacidade</h3>
+        <label class="set-row">
+          <span class="set-text"><b>Modo streamer</b><small>Borra nomes e avatares das contas. Passe o mouse para revelar.</small></span>
+          <input type="checkbox" class="switch" id="set-streamer" />
+        </label>
+      </section>
+
+      <button id="set-reset" class="btn btn-ghost btn-sm set-reset" type="button">Restaurar padrões</button>
+    </div>
+
+    <div class="settings-credits">
+      <span>Créditos</span>
+      <a href="https://www.youtube.com/@eternalBMZ" target="_blank" rel="noopener noreferrer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 23.5 12 31 31 0 0 0 23 7.2zM9.8 15.1V8.9l5.4 3.1-5.4 3.1z"/></svg>
+        <b>eternalBMZ</b> no YouTube
+      </a>
+      <small>Eternal TOOLS v4 · Todos os direitos reservados</small>
+    </div>
+  </aside>
+
+  <!-- BOAS-VINDAS (primeiro acesso) -->
+  <div id="welcome-overlay" class="welcome-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="welcome-modal">
+      <div class="welcome-mark"><img src="icons/icon128.png" alt="" onerror="this.style.display='none'" /></div>
+      <div class="welcome-kanji">永遠</div>
+      <h2 id="welcome-title">Bem-vindo à Eternal TOOLS</h2>
+      <p class="welcome-text">Obrigado por usar a extensão! Gerencie contas, cookies, 2FA e amizades do Roblox em um só lugar.</p>
+
+      <div class="welcome-warn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <div>
+          <b>Aviso importante</b>
+          <p>A <b>venda</b> e a <b>modificação</b> dos arquivos desta extensão são <b>totalmente proibidas</b>. Não é permitido vender, revender, redistribuir como seu ou alterar o código.</p>
+        </div>
+      </div>
+
+      <label class="welcome-check">
+        <input type="checkbox" id="welcome-agree" />
+        <span class="welcome-check-text">Li e concordo com os termos acima</span>
+      </label>
+
+      <button id="welcome-continue" class="btn btn-primary welcome-btn" type="button" disabled>Continuar</button>
+      <div class="welcome-credit">Criado por <a href="https://www.youtube.com/@eternalBMZ" target="_blank" rel="noopener noreferrer">eternalBMZ</a></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
